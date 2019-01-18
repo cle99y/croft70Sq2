@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">LXX Squadron ATC</string>
+    <string name="tab_text_1">User Data</string>
+    <string name="tab_text_2">Next Parade</string>
+    <string name="tab_text_3">Book Leave</string>
+    <string name="action_settings">Something here</string>
+    <string name="banner_image_user_tab">banner image user tab</string>
+    <string name="enter_user_information">Enter User Information</string>
+    <string name="last_name">Last Name:</string>
+    <string name="notification_area">The information provided below will be used for leave requests submitted through this app. No information is stored externally.</string>
+    <string name="first_name">First Name:</string>
+    <string name="rank">Rank:</string>
+    <string name="submit">Submit</string>
+    <string name="cancel">cancel</string>
+    <string name="no_internet">Please check your internet connection</string>
+    <string name="modify">modify</string>
+
+</resources>
