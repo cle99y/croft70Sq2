@@ -14,8 +14,10 @@ import com.geeklife.croft70squadron.R;
 
 public class User extends Fragment {
 
+    // constant declarations
     final static Boolean USER_EXISTS = true;
     final static Boolean USER_NOT_SET = false;
+    
     View v;
     Button btn;
     TextView header, message, fName, lName, rank;
