@@ -15,6 +15,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.geeklife.common.IntenetTest;
 import com.geeklife.croft70squadron.R;
@@ -37,13 +38,17 @@ public class Parade extends Fragment {
     TextView progress;
     Button btn;
     Boolean isUniform;      // true: show Uniforms, false: show Parade
-    SharedPreferences paradeData;
-    SharedPreferences.Editor editor;
+    SharedPreferences paradeData, userInfo;
+    SharedPreferences.Editor editor, userEditor;
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container,
                               Bundle savedInstanceState ) {
         View v = inflater.inflate( R.layout.parade, container, false );
+
+        userInfo = getContext().getSharedPreferences( "USER", Context.MODE_PRIVATE );
+        userEditor = userInfo.edit();
+
 
         paradeData = getActivity().getSharedPreferences( "PARADE", Context.MODE_PRIVATE );
         editor = paradeData.edit();
@@ -52,6 +57,15 @@ public class Parade extends Fragment {
         btn = v.findViewById( R.id.button );
         isUniform = false;
         url = URL_PARADE;
+
+        if ( userInfo.contains( "first_name" ) ) {
+            Toast.makeText( getContext(),
+                    "Welcome back " +
+                            userInfo.getString( "rank", null ) + " " +
+                            userInfo.getString( "first_name", null ) + " " +
+                            userInfo.getString( "last_name", null ) + "!",
+                    Toast.LENGTH_LONG ).show();
+        }
 
 
         if ( IntenetTest.testConnection( getActivity() ) ) {

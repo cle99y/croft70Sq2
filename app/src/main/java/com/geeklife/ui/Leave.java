@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.geeklife.croft70squadron.R;
 
@@ -30,6 +32,8 @@ public class Leave extends Fragment {
     ImageView datePickerStart, datePickerEnd;
     DatePickerDialog datePicker;
     InputMethodManager imm;
+    SharedPreferences userInfo;
+    SharedPreferences.Editor userEditor;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -37,6 +41,9 @@ public class Leave extends Fragment {
                               Bundle savedInstanceState ) {
 
         View v = inflater.inflate( R.layout.leave, container, false );
+
+        userInfo = getContext().getSharedPreferences( "USER", Context.MODE_PRIVATE );
+        userEditor = userInfo.edit();
 
         imm = ( InputMethodManager )
                 getActivity().getSystemService( Context.INPUT_METHOD_SERVICE );
@@ -58,24 +65,37 @@ public class Leave extends Fragment {
         submit.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick( View view ) {
-                imm.hideSoftInputFromWindow( view.getWindowToken(), 0 );
+                if ( !userInfo.contains( "first_name" ) ) {
+                    Toast.makeText( getContext(),
+                            "No user profile exists.  Please update.",
+                            Toast.LENGTH_LONG ).show();
+                } else {
 
-                String sd = startDate.getText().toString();
-                String ed = endDate.getText().toString();
-                String r = reason.getText().toString();
+                    imm.hideSoftInputFromWindow( view.getWindowToken(), 0 );
 
-                Intent intent = new Intent( Intent.ACTION_SENDTO );
-                intent.setData( Uri.parse( "mailto:paul.clegg@consultarc.com; paul.clegg101@mod.gov.uk" ) ); // only email apps should handle this
-                intent.putExtra( Intent.EXTRA_SUBJECT, "new leave request" );
-                intent.putExtra( Intent.EXTRA_TEXT, "START DATE: " + sd + "\n" +
-                        " END DATE: " + ed + "\n" +
-                        "\n" + " THE REASON GIVEN IS: " + "\n" + r + "\n" +
-                        "\n" + "Sent from LXX Squadron Android App"
-                );
-                if ( intent.resolveActivity( getActivity().getPackageManager() ) != null ) {
+                    String sd = startDate.getText().toString();
+                    String ed = endDate.getText().toString();
+                    String r = reason.getText().toString();
+                    String fn = userInfo.getString( "first_name", null );
+                    String ln = userInfo.getString( "last_name", null );
+                    String rk = userInfo.getString( "rank", null );
 
-                    clearForm();
-                    startActivity( intent );
+
+                    Intent intent = new Intent( Intent.ACTION_SENDTO );
+                    intent.setData( Uri.parse( "mailto:paul.clegg@consultarc.com; paul.clegg101@mod.gov.uk" ) ); // only email apps should handle this
+                    intent.putExtra( Intent.EXTRA_SUBJECT, "new leave request" );
+                    intent.putExtra( Intent.EXTRA_TEXT,
+                            rk + " " + fn + " " + ln + " has requested leave:" + "\n" +
+                                    "START DATE: " + sd + "\n" +
+                                    " END DATE: " + ed + "\n" +
+                                    "\n" + " THE REASON GIVEN IS: " + "\n" + r + "\n" +
+                                    "\n" + "Sent from LXX Squadron Android App"
+                    );
+                    if ( intent.resolveActivity( getActivity().getPackageManager() ) != null ) {
+
+                        clearForm();
+                        startActivity( intent );
+                    }
                 }
             }
         } );
@@ -92,16 +112,6 @@ public class Leave extends Fragment {
 
             }
         } );
-
-        // date pickers
-
-//        datePickerStart.setOnClickListener( new View.OnClickListener() {
-//            @Override
-//            public void onClick( View view ) {
-//                Log.i( "DATE", "CLICKED" );
-//                DateListener( startDate, datePickerStart );
-//            }
-//        } );
 
         datePickerStart.setOnTouchListener( new View.OnTouchListener() {
             @Override

@@ -7,10 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.geeklife.croft70squadron.R;
 
@@ -23,16 +23,21 @@ public class User extends Fragment {
     final static Boolean HAS_ERRORS = true;
     final static String EMPTY = null;
 
+    static SharedPreferences userInfo;
+    static SharedPreferences.Editor userEditor;
+
     View v;
-    Button btn;
+    Button actnBtn, clearBtn;
     TextView header, message, fName, lName, rank;
     TextView[] setUser;
     EditText newFName, newLName, newRank;
     EditText[] newUser;
     ViewGroup vg;
-    SharedPreferences userInfo;
-    SharedPreferences.Editor userEditor;
     Boolean isUserSet;
+    InputMethodManager imm;
+
+    public User() {
+    }
 
     @Override
     public View onCreateView( final LayoutInflater inflater, final ViewGroup container,
@@ -41,10 +46,15 @@ public class User extends Fragment {
         userInfo = getContext().getSharedPreferences( "USER", Context.MODE_PRIVATE );
         userEditor = userInfo.edit();
 
+        imm = ( InputMethodManager )
+                getActivity().getSystemService( Context.INPUT_METHOD_SERVICE );
+
+
         isUserSet = userInfo.contains( "first_name" );
 
         v = inflater.inflate( R.layout.set_user, container, false );
-        btn = v.findViewById( R.id.btn_modify_user );
+        actnBtn = v.findViewById( R.id.btn_modify_user );
+        clearBtn = v.findViewById( R.id.btn_clear );
         fName = v.findViewById( R.id.tv_set_first_name );
         lName = v.findViewById( R.id.tv_set_last_name );
         rank = v.findViewById( R.id.tv_set_rank );
@@ -57,13 +67,13 @@ public class User extends Fragment {
         setForm( isUserSet );
 
 
-        btn.setOnClickListener( new View.OnClickListener() {
+        actnBtn.setOnClickListener( new View.OnClickListener() {
 
 
             @Override
             public void onClick( View view ) {
 
-                Boolean isError = false;
+                Boolean isError = NO_ERRORS;
 
                 if ( isUserSet == USER_NOT_SET ) {
                     String fn = newFName.getText().toString();
@@ -74,31 +84,56 @@ public class User extends Fragment {
                     userEditor.putString( "last_name", ln );
                     userEditor.putString( "rank", r );
                     userEditor.commit();
-                    Toast.makeText( getContext(),
-                            "Hello " + r + " " + fn + " " + ln,
-                            Toast.LENGTH_LONG ).show();
                 }
-
 
                 if ( isError == NO_ERRORS ) {
                     isUserSet = !isUserSet;
                     setForm( isUserSet );
+                    imm.hideSoftInputFromWindow( v.getWindowToken(), 0 );
                 }
+            }
+        } );
 
-
+        clearBtn.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick( View view ) {
+                if ( isUserSet ) {
+                    clearUserInfo();
+                    clearUserForm();
+                    isUserSet = USER_NOT_SET;
+                    imm.hideSoftInputFromWindow( v.getWindowToken(), 0 );
+                    setForm( isUserSet );
+                } else {
+                    clearUserForm();
+                    setForm( isUserSet );
+                }
             }
         } );
 
         return v;
-
     }
+
+    private void clearUserInfo() {
+        userEditor.remove( "first_name" );
+        userEditor.remove( "last_name" );
+        userEditor.remove( "rank" );
+        userEditor.commit();
+    }
+
+    private void clearUserForm() {
+        newFName.setText( "" );
+        newLName.setText( "" );
+        newRank.setText( "" );
+        setForm( isUserSet );
+    }
+
 
     private void setForm( Boolean userExists ) {
         if ( userExists ) {
             for ( int i = 0; i < newUser.length; i++ ) {
                 setUser[i].setVisibility( View.VISIBLE );
                 newUser[i].setVisibility( View.GONE );
-                btn.setText( R.string.modify );
+                actnBtn.setText( R.string.modify );
             }
             fName.setText( userInfo.getString( "first_name", EMPTY ) );
             lName.setText( userInfo.getString( "last_name", EMPTY ) );
@@ -107,7 +142,7 @@ public class User extends Fragment {
             for ( int i = 0; i < newUser.length; i++ ) {
                 newUser[i].setVisibility( View.VISIBLE );
                 setUser[i].setVisibility( View.GONE );
-                btn.setText( R.string.submit );
+                actnBtn.setText( R.string.submit );
             }
         }
     }
@@ -123,6 +158,17 @@ public class User extends Fragment {
             }
         }
     }
+
+    public SharedPreferences getUserInfo() {
+        return userInfo;
+    }
+
+
+    public SharedPreferences.Editor getUserEditor() {
+        return userEditor;
+    }
+
+
 }
 
 
