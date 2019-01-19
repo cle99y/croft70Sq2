@@ -98,6 +98,7 @@ public class User extends Fragment {
             @Override
             public void onClick( View view ) {
                 if ( isUserSet ) {
+
                     clearUserInfo();
                     clearUserForm();
                     isUserSet = USER_NOT_SET;
